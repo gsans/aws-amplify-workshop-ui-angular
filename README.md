@@ -31,8 +31,8 @@ In this workshop we'll learn how to build cloud-enabled web applications with An
 
 ## Pre-requisites
 
-- Node: `11.13.0`. Visit [Node](https://nodejs.org/en/download/)
-- npm: `6.9.0`. Packaged with Node otherwise run upgrade
+- Node: `14.7.0`. Visit [Node](https://nodejs.org/en/download/)
+- npm: `6.14.7`. Packaged with Node otherwise run upgrade
 
 ```bash
 npm install -g npm
@@ -82,7 +82,7 @@ window.global = window;
 Let's now install the AWS Amplify & AWS Amplify Angular libraries:
 
 ```bash
-npm install --save aws-amplify aws-amplify-angular
+npm install --save @aws-amplify/auth @aws-amplify/api @aws-amplify/pubsub @aws-amplify/ui-angular
 ```
 
 ### Installing the AWS Amplify CLI
@@ -179,9 +179,13 @@ The first thing we need to do is to configure our Angular application to be awar
 To configure the app, open __main.ts__ and add the following code below the last import:
 
 ```js
-import Amplify from 'aws-amplify';
+import Auth from '@aws-amplify/auth';
+import API from '@aws-amplify/api';
+import PubSub from '@aws-amplify/pubsub';
 import amplify from './aws-exports';
-Amplify.configure(amplify);
+Auth.configure(amplify);
+API.configure(amplify);
+PubSub.configure(amplify);
 ```
 
 Now, our app is ready to start using our AWS services.
@@ -191,36 +195,19 @@ Now, our app is ready to start using our AWS services.
 Add the Amplify Module and Service to `src/app/app.module.ts`:
 
 ```js
-import { AmplifyAngularModule, AmplifyService } from 'aws-amplify-angular';
+import { AmplifyUIAngularModule } from '@aws-amplify/ui-angular';
+
 
 @NgModule({
   imports: [
-    AmplifyAngularModule
+    AmplifyUIAngularModule
   ],
-  providers: [
-    AmplifyService
-  ]
 });
 ```
-
-### Using Amplify Service
-
-The `AmplifyService` provides access to AWS Amplify core categories via Dependency Injection: auth, analytics, storage, api, cache, pubsub; and authentication state via Observables.
 
 ### Using the Authenticator Component
 
 AWS Amplify provides UI components that you can use in your App. Let's add these components to the project
-
-```bash
-npm i --save @aws-amplify/ui
-```
-
-Also include these imports to the top of `styles.css`
-
-```css
-@import "~@aws-amplify/ui/src/Theme.css";
-@import "~@aws-amplify/ui/src/Angular.css";
-```
 
 In order to use the Authenticator Component add it to __src/app.component.html__:
 
@@ -243,12 +230,59 @@ amplify console auth
 We can access the user's info now that they are signed in by calling `currentAuthenticatedUser()` which returns a Promise.
 
 ```js
-import { AmplifyService } from 'aws-amplify-angular';
+import Auth from '@aws-amplify/auth';
 
 @Component(...)
 export class AppComponent {
-  constructor(public amplify: AmplifyService) {
-    amplify.auth().currentAuthenticatedUser().then(console.log)
+  constructor() {
+    Auth.currentAuthenticatedUser().then(console.log)
+  }
+}
+```
+
+### Managing authentication states
+
+The `Authenticator` Component goes through different states as the user interacts with the authentication flow. Let's see a more advanced example of showing a welcome message to the user once is logged in:
+
+Replace the content of __src/app.component.html__ with:
+
+```html
+<div>
+  <amplify-authenticator *ngIf="authState !== 'signedin'"></amplify-authenticator>
+
+  <div *ngIf="authState === 'signedin' && user">
+    <div>Hello, {{user.username}}</div>
+    <amplify-sign-out></amplify-sign-out>
+  </div>
+</div>
+```
+
+In our component make the following changes
+
+```js
+import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { onAuthUIStateChange, CognitoUserInterface, AuthState } from '@aws-amplify/ui-components';
+import Auth from '@aws-amplify/auth';
+
+@Component(...)
+export class AppComponent implements OnInit, OnDestroy {
+  user: CognitoUserInterface | undefined;
+  authState: AuthState;
+
+  constructor(private ref: ChangeDetectorRef) {
+    Auth.currentAuthenticatedUser().then(console.log)    
+  }
+
+  ngOnInit() {
+    onAuthUIStateChange((authState, authData) => {
+      this.authState = authState;
+      this.user = authData as CognitoUserInterface;
+      this.ref.detectChanges();
+    })
+  }
+
+  ngOnDestroy() {
+    return onAuthUIStateChange;
   }
 }
 ```
@@ -280,7 +314,7 @@ To do this, we could create a form like:
 We'd also need to have a method that signed up & signed in users. We can us the Auth class to do this. The Auth class has over 30 methods including things like `signUp`, `signIn`, `confirmSignUp`, `confirmSignIn`, & `forgotPassword`. These functions return a promise so they need to be handled asynchronously.
 
 ```js
-import { Auth } from 'aws-amplify';
+import Auth from '@aws-amplify/auth';
 
 export class SignupComponent implements OnInit {
   public signup: FormGroup;
@@ -342,11 +376,11 @@ amplify push
 
 - Are you sure you want to continue? __Yes__
 - Do you want to generate code for your newly created GraphQL API __Yes__
-- Choose the code generation language target __typescript__
+- Choose the code generation language target __angular__
 - Enter the file name pattern of graphql queries, mutations and subscriptions __src/graphql/**/*.ts__
 - Do you want to generate/update all possible GraphQL operations - queries, mutations and subscriptions __Yes__
 - Enter maximum statement depth [increase from default if your schema is deeply nested] __2__
-- Enter the file name for the generated code __src/API.ts__
+- Enter the file name for the generated code __src/APIService.ts__
 
 Notice your __GraphQL endpoint__ and __API KEY__.
 
@@ -423,9 +457,8 @@ To do so, we need to define the query, execute the query, store the data in our 
 
 
 ```js
-import { API, graphqlOperation } from 'aws-amplify';
-import { listRestaurants } from '../graphql/queries';
-import { Restaurant } from './types/restaurant';
+import { APIService } from '../API.service';
+import { Restaurant } from './../types/restaurant';
 
 @Component({
   template: `
@@ -438,9 +471,12 @@ import { Restaurant } from './types/restaurant';
 export class AppComponent implements OnInit {
   restaurants: Array<Restaurant>;
 
+  constructor(private api: APIService) { }
+
   async ngOnInit() {
-    var response = await API.graphql(graphqlOperation(listRestaurants))
-    this.restaurants = (response as any).data.listRestaurants.items;
+    this.api.ListRestaurants().then(event => {
+      this.restaurants = event.items;
+    });
   }
 }
 ```
@@ -451,13 +487,12 @@ export class AppComponent implements OnInit {
 
 ```js
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { createRestaurant } from '../../graphql/mutations'
 
 @Component(...)
 export class HomeComponent implements OnInit {
   public createForm: FormGroup;
 
-  constructor(private fb: FormBuilder) { }
+  constructor(private api: APIService, private fb: FormBuilder) { }
 
   async ngOnInit() {
     this.createForm = this.fb.group({
@@ -465,22 +500,19 @@ export class HomeComponent implements OnInit {
       'description': ['', Validators.required],
       'city': ['', Validators.required]
     });
-    var response = await API.graphql(graphqlOperation(listRestaurants));
-    this.restaurants = (response as any).data.listRestaurants.items;
+    this.api.ListRestaurants().then(event => {
+      this.restaurants = event.items;
+    });
   } 
   
-  public async onCreate(restaurant: any) {
-    try {
-      await API.graphql(graphqlOperation(createRestaurant, {
-        input: restaurant
-      }));
+  public onCreate(restaurant: any) {
+    this.api.CreateRestaurant(restaurant).then(event => {
       console.log('item created!');
-      this.restaurants = [restaurant, ...this.restaurants];
       this.createForm.reset();
-    } 
-    catch (e) {
+    })
+    .catch(e => {
       console.log('error creating restaurant...', e);
-    }
+    });
   }
 }
 ```
@@ -492,21 +524,13 @@ Next, let's see how we can create a subscription to subscribe to changes of data
 To do so, we need to define the subscription, listen for the subscription, & update the state whenever a new piece of data comes in through the subscription.
 
 ```js
-import * as Observable from 'zen-observable';
-import { onCreateRestaurant } from '../../graphql/subscriptions';
-
 @Component(...)
 export class HomeComponent implements OnInit {
   ngOnInit() {
-    var subscription = API.graphql(
-      graphqlOperation(onCreateRestaurant)
-    ) as Observable<object>;
-    
-    subscription.subscribe({
-      next: (sourceData) => {
-        const newRestaurant = (sourceData as any).value.data.onCreateRestaurant
-        this.restaurants = [newRestaurant, ...this.restaurants];
-      }
+    //Subscribe to changes
+    this.api.OnCreateRestaurantListener.subscribe( (event: any) => {
+      const newRestaurant = event.value.data.onCreateRestaurant;
+      this.restaurants = [newRestaurant, ...this.restaurants];
     });
   }
 }
