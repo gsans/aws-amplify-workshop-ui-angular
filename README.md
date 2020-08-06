@@ -192,7 +192,7 @@ import { AmplifyUIAngularModule } from '@aws-amplify/ui-angular';
 
 AWS Amplify provides UI components that you can use in your App. Let's add these components to the project
 
-In order to use the Authenticator Component add it to __src/app.component.html__:
+In order to use the Authenticator Component add it to __src/app/app.component.html__:
 
 ```html
 <amplify-authenticator></amplify-authenticator>
@@ -227,7 +227,7 @@ export class AppComponent {
 
 The `Authenticator` Component goes through different states as the user interacts with the authentication flow. Let's see a more advanced example of showing a welcome message to the user once is logged in:
 
-Replace the content of __src/app.component.html__ with:
+Replace the content of __src/app/app.component.html__ with:
 
 ```html
 <div>
@@ -455,7 +455,7 @@ export class AppComponent implements OnInit {
 
   constructor(private api: APIService) { }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.api.ListRestaurants().then(event => {
       this.restaurants = event.items;
     });
