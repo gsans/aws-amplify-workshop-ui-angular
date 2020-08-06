@@ -344,7 +344,6 @@ Answer the following questions
 ```graphql
 type Restaurant @model {
   id: ID!
-  clientId: String
   name: String!
   description: String!
   city: String!
