@@ -66,7 +66,7 @@ window.global = window;
 Let's now install the AWS Amplify & AWS Amplify Angular libraries:
 
 ```bash
-npm install --save @aws-amplify/auth @aws-amplify/api @aws-amplify/pubsub @aws-amplify/ui-angular
+npm install --save @aws-amplify/auth @aws-amplify/api @aws-amplify/pubsub @aws-amplify/storage @aws-amplify/ui-angular
 ```
 
 ### Installing the AWS Amplify CLI
