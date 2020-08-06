@@ -176,7 +176,7 @@ Now, our app is ready to start using our AWS services.
 
 ### Importing the Angular Module
 
-Add the Amplify Module to `src/app/app.module.ts`:
+Add the Amplify UI Module to `src/app/app.module.ts`:
 
 ```js
 import { AmplifyUIAngularModule } from '@aws-amplify/ui-angular';
