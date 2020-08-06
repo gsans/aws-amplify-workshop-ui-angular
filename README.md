@@ -55,10 +55,10 @@ Add type definitions for __Node__ by changing `src/tsconfig.app.json`. This is a
 Add the following code, to the top of `src/polyfills.ts`. This is a requirement for Angular 6+.
 
 ```js
-declare global {
-  interface Window { global: any; }
-}
-window.global = window;
+(window as any).global = window;
+(window as any).process = {
+  env: { DEBUG: undefined },
+};
 ```
 
 ## Installing the CLI & Initializing a new AWS Amplify Project
