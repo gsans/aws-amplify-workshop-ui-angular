@@ -1,4 +1,4 @@
-# Building your first Fullstack Serverless App with AWS Amplify
+# Building your first Fullstack Serverless App with Angular and AWS Amplify
 
 In this workshop we'll learn how to build cloud-enabled web applications with Angular & [AWS Amplify](https://aws-amplify.github.io/).
 
@@ -11,6 +11,7 @@ In this workshop we'll learn how to build cloud-enabled web applications with An
 - [Hosting](https://github.com/gsans/aws-amplify-workshop-angular#hosting)
 - [Multiple Environments](https://github.com/gsans/aws-amplify-workshop-react#working-with-multiple-environments)
 - [Deploying via the Amplify Console](https://github.com/gsans/aws-amplify-workshop-angular#amplify-console)
+- [Run locally via Amplify CLI](#run-locally-with-the-amplify-cli)
 - [Removing / Deleting Services](https://github.com/gsans/aws-amplify-workshop-angular#removing-services)
 
 ## Pre-requisites
@@ -94,6 +95,8 @@ Here we'll walk through the `amplify configure` setup. Once you've signed in to 
   secretAccessKey:  __(<YOUR_SECRET_ACCESS_KEY>)__
 - Profile Name: __default__
 
+> Find out the best AWS Region to host your app (lower latency is best): [AWS latency test](https://ping.psa.fun), [CloudPing.info](https://www.cloudping.info).
+
 > To view the new created IAM User go to the dashboard at [https://console.aws.amazon.com/iam/home#/users/](https://console.aws.amazon.com/iam/home#/users/). Also be sure that your region matches your selection.
 
 ### Initializing A New Project
@@ -144,6 +147,13 @@ Now, we'll run the push command and the cloud resources will be created in our A
 
 ```bash
 amplify push
+
+Current Environment: dev
+
+| Category | Resource name      | Operation | Provider plugin   |
+| -------- | ------------------ | --------- | ----------------- |
+| Auth     | amplifyappuuid     | Create    | awscloudformation |
+? Are you sure you want to continue? Yes
 ```
 
 To quickly check your newly created __Cognito User Pool__ you can run
@@ -350,6 +360,8 @@ type Restaurant @model {
 }
 ```
 
+> Note: Don't forget to save the changes to the schema file!
+
 > Next, let's push the configuration to our account:
 
 ```bash
@@ -359,10 +371,10 @@ amplify push
 - Are you sure you want to continue? __Yes__
 - Do you want to generate code for your newly created GraphQL API __Yes__
 - Choose the code generation language target __angular__
-- Enter the file name pattern of graphql queries, mutations and subscriptions __src/graphql/**/*.ts__
+- Enter the file name pattern of graphql queries, mutations and subscriptions __src/graphql/**/*.graphql__
 - Do you want to generate/update all possible GraphQL operations - queries, mutations and subscriptions __Yes__
 - Enter maximum statement depth [increase from default if your schema is deeply nested] __2__
-- Enter the file name for the generated code __src/APIService.ts__
+- Enter the file name for the generated code __src/app/API.service.ts__
 
 Notice your __GraphQL endpoint__ and __API KEY__.
 
@@ -626,6 +638,26 @@ Finally, we can click __Save and Deploy__ to deploy our application!
 
 Now, we can push updates to Master to update our application.
 
+## Run locally with the Amplify CLI
+
+1. Install and configure the Amplify CLI
+
+```
+  npm install -g @aws-amplify/cli
+  amplify configure
+```
+
+2. Install and configure the Amplify CLI
+
+```
+  amplify init --app https://github.com/gsans/aws-amplify-workshop-ui-angular
+```
+  
+>The init command clones the GitHub repo, initializes the CLI, creates a ‘sampledev’ environment in CLI, detects and adds categories, provisions the backend, pushes the changes to the cloud, and starts the app.
+
+3. Provisioning the frontend and backend
+
+Once the process is complete, the CLI will automatically open the app in your default browser.
 
 ## Removing Services
 
@@ -644,3 +676,23 @@ amplify status
 ```
 
 `amplify status` will give you the list of resources that are currently enabled in your app.
+
+
+## Appendix
+
+### Setup your AWS Account
+
+In order to follow this workshop you need to create and activate an Amazon Web Services account. 
+
+Follow the steps [here](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account)
+
+### Trobleshooting
+
+Message: The AWS Access Key Id needs a subscription for the service
+
+Solution: Make sure you are subscribed to the free plan. [Subscribe](https://portal.aws.amazon.com/billing/signup?type=resubscribe#/resubscribed)
+
+
+Message: TypeError: fsevents is not a constructor
+
+Solution: `npm audit fix --force`
