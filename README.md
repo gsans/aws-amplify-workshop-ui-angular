@@ -88,14 +88,15 @@ amplify configure
 
 Here we'll walk through the `amplify configure` setup. Once you've signed in to the AWS console, continue:
 - Specify the AWS Region: __eu-central-1(Frankfurt)__
+
+> Find out the best AWS Region to host your app (lower latency is best): [AWS latency test](https://ping.psa.fun), [CloudPing.info](https://www.cloudping.info).
+
 - Specify the username of the new IAM user: __amplify-app__
 > In the AWS Console, click __Next: Permissions__, __Next: Tags__, __Next: Review__, & __Create User__ to create the new IAM user. Then, return to the command line & press Enter.
 - Enter the access key of the newly created user:   
   accessKeyId: __(<YOUR_ACCESS_KEY_ID>)__   
   secretAccessKey:  __(<YOUR_SECRET_ACCESS_KEY>)__
 - Profile Name: __default__
-
-> Find out the best AWS Region to host your app (lower latency is best): [AWS latency test](https://ping.psa.fun), [CloudPing.info](https://www.cloudping.info).
 
 > To view the new created IAM User go to the dashboard at [https://console.aws.amazon.com/iam/home#/users/](https://console.aws.amazon.com/iam/home#/users/). Also be sure that your region matches your selection.
 
