@@ -6,13 +6,13 @@ In this workshop we'll learn how to build cloud-enabled web applications with An
 
 ### Topics we'll be covering:
 
-- [Authentication](https://github.com/gsans/aws-amplify-workshop-angular#adding-authentication)
-- [GraphQL API with AWS AppSync](https://github.com/gsans/aws-amplify-workshop-angular#adding-a-graphql-api)
-- [Hosting](https://github.com/gsans/aws-amplify-workshop-angular#hosting)
-- [Multiple Environments](https://github.com/gsans/aws-amplify-workshop-react#working-with-multiple-environments)
-- [Deploying via the Amplify Console](https://github.com/gsans/aws-amplify-workshop-angular#amplify-console)
+- [Authentication](#adding-authentication)
+- [GraphQL API with AWS AppSync](#adding-a-graphql-api)
+- [Hosting](#hosting)
+- [Multiple Environments](#working-with-multiple-environments)
+- [Deploying via the Amplify Console](#deploying-via-the-amplify-console)
 - [Run locally via Amplify CLI](#run-locally-with-the-amplify-cli)
-- [Removing / Deleting Services](https://github.com/gsans/aws-amplify-workshop-angular#removing-services)
+- [Removing / Deleting Services](#removing-services)
 
 ## Pre-requisites
 
@@ -33,7 +33,7 @@ If you already have it installed, skip to the next step. If not, either install 
 npm install -g @angular/cli
 ng new amplify-app
 ```
-
+ 
 Now change into the new app directory and make sure it runs
 
 ```bash
@@ -87,7 +87,7 @@ amplify configure
 > If you'd like to see a video walkthrough of this configuration process, click [here](https://www.youtube.com/watch?v=fWbM5DLh25U).
 
 Here we'll walk through the `amplify configure` setup. Once you've signed in to the AWS console, continue:
-- Specify the AWS Region: __ap-south-1(Mumbai)__
+- Specify the AWS Region: __eu-central-1(Frankfurt)__
 - Specify the username of the new IAM user: __amplify-app__
 > In the AWS Console, click __Next: Permissions__, __Next: Tags__, __Next: Review__, & __Create User__ to create the new IAM user. Then, return to the command line & press Enter.
 - Enter the access key of the newly created user:   
@@ -626,7 +626,11 @@ git commit -m 'initial commit'
 git push origin master
 ```
 
-Next we'll visit the Amplify Console in our AWS account at [https://ap-south-1.console.aws.amazon.com/amplify/home](https://ap-south-1.console.aws.amazon.com/amplify/home).
+Next we'll visit the Amplify Console in our AWS account:
+
+```bash
+amplify console
+```
 
 Here, we'll click __Get Started__ to create a new deployment. Next, authorize Github as the repository service.
 
@@ -665,7 +669,6 @@ If at any time, or at the end of this workshop, you would like to delete a servi
 
 ```sh
 amplify remove auth
-
 amplify push
 ```
 
@@ -677,6 +680,11 @@ amplify status
 
 `amplify status` will give you the list of resources that are currently enabled in your app.
 
+## Deleting entire project
+
+```sh
+amplify delete
+```
 
 ## Appendix
 
