@@ -231,9 +231,9 @@ Replace the content of __src/app/app.component.html__ with:
 
 ```html
 <div>
-  <amplify-authenticator *ngIf="authState !== 'signedin'"></amplify-authenticator>
+  <amplify-authenticator *ngIf="!signedIn"></amplify-authenticator>
 
-  <div *ngIf="authState === 'signedin' && user">
+  <div *ngIf="signedIn && user">
     <div>Hello, {{user.username}}</div>
     <amplify-sign-out></amplify-sign-out>
   </div>
@@ -250,7 +250,7 @@ import Auth from '@aws-amplify/auth';
 @Component(...)
 export class AppComponent implements OnInit, OnDestroy {
   user: CognitoUserInterface | undefined;
-  authState: AuthState;
+  signedIn: boolean;
 
   constructor(private ref: ChangeDetectorRef) {
     Auth.currentAuthenticatedUser().then(console.log)    
@@ -258,7 +258,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     onAuthUIStateChange((authState, authData) => {
-      this.authState = authState;
+      this.signedIn = authState === AuthState.SignedIn;
       this.user = authData as CognitoUserInterface;
       this.ref.detectChanges();
     })
